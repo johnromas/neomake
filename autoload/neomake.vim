@@ -69,6 +69,13 @@ function! neomake#ListJobs() abort
     endfor
 endfunction
 
+function! neomake#CancelMake(make_id, ...) abort
+    let jobs = filter(copy(values(s:jobs)), 'v:val.make_id == a:make_id')
+    for job in jobs
+        call neomake#CancelJob(job.id, a:0 ? a:1 : 0)
+    endfor
+endfunction
+
 function! neomake#CancelJob(job_id, ...) abort
     let remove_always = a:0 ? a:1 : 0
     " Handle '1: foo' format from neomake#CompleteJobs.
@@ -403,6 +410,16 @@ function! s:command_maker_base._get_fname_for_buffer(jobinfo) abort
         let a:jobinfo.tempfile = temp_file
         let bufname = temp_file
     endif
+
+    " TODO: only if automake is enabled?!
+    if !has_key(make_info, 'automake_tick')
+        let tick = [getbufvar(a:jobinfo.bufnr, 'changedtick'),
+                    \  a:jobinfo.ft]
+        let make_info.automake_tick = tick
+        call neomake#utils#DebugMessage('Setting neomake_automake_tick.', a:jobinfo)
+        call setbufvar(a:jobinfo.bufnr, 'neomake_automake_tick', tick)
+    endif
+
     let a:jobinfo.filename = bufname
     return bufname
 endfunction
