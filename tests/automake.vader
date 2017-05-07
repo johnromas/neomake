@@ -220,7 +220,7 @@ Execute (Automake):
   " Should run with changes to the buffer.
   norm oline2
   exe 'doautocmd' event
-  sleep 50m
+  NeomakeTestsWaitForNextFinishedJob
   AssertEqual len(g:neomake_test_jobfinished), 2
 
   norm oline4
@@ -228,16 +228,13 @@ Execute (Automake):
     AssertEqual len(g:neomake_test_jobfinished), 2
     exe 'doautocmd' event
     AssertEqual len(g:neomake_test_jobfinished), 2
-    sleep 50m
-  else
-    AssertEqual len(g:neomake_test_jobfinished), 3
+    NeomakeTestsWaitForNextFinishedJob
   endif
 
   AssertEqual len(g:neomake_test_jobfinished), 3
 
   new
   exe 'doautocmd' event
-  sleep 50m
   AssertNeomakeMessage 'automake: configured buffer for ft= (no enabled makers).'
 
   let b:neomake_automake_enabled_makers = ['foo']
